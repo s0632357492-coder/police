@@ -49,9 +49,36 @@ npm run deploy
 npm start
 ```
 
----
+## 5) Deploy บน Render (Web Service)
 
-## โครงสร้างโปรเจกต์
+โปรเจกต์นี้แก้ให้รองรับ Render Web Service แล้ว โดยเปิด HTTP server เล็ก ๆ ที่ endpoint `/health`
+เพื่อให้ Render เห็นว่าแอปมีอะไรฟังพอร์ตอยู่ (ไม่งั้น Web Service แบบฟรีจะคิดว่าแอป crash แล้ว restart วนลูป)
+
+**ตั้งค่าตอนสร้าง Web Service:**
+
+| ช่อง | ค่า |
+|---|---|
+| Language | Node |
+| Build Command | `npm install` |
+| Start Command | `npm start` |
+
+**Environment Variables ที่ต้องเพิ่ม (ในหน้า Render ไม่ใช่ไฟล์ `.env`):**
+
+- `DISCORD_TOKEN`
+- `CLIENT_ID`
+- `GUILD_ID` (ถ้าต้องการ)
+
+**หลัง deploy สำเร็จ ต้องลงทะเบียน slash commands ครั้งเดียว** ผ่านแท็บ **Shell** ของ Render:
+
+```bash
+node src/deploy-commands.js
+```
+
+⚠️ **ข้อควรระวังเรื่อง SQLite บน Render:** filesystem ของ Render ไม่ persistent — ไฟล์ `data/bot.db` จะถูกลบทุกครั้งที่ deploy ใหม่
+ถ้าต้องการเก็บข้อมูลถาวร ให้เพิ่ม **Persistent Disk** ในหน้าตั้งค่าบริการแล้ว mount ไปที่โฟลเดอร์ `data/`
+หรือย้ายไปใช้ PostgreSQL (Render มี Postgres free tier แยกต่างหาก)
+
+
 
 ```
 src/

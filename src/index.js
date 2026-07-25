@@ -1,4 +1,5 @@
 require('dotenv').config();
+const http = require('http');
 const { Client, GatewayIntentBits, Partials } = require('discord.js');
 
 const { loadCommands } = require('./utils/loadCommands');
@@ -13,6 +14,32 @@ if (!DISCORD_TOKEN) {
   process.exit(1);
 }
 
+// ---------------------------------------------------------------------------
+// HTTP health-check server — จำเป็นสำหรับ hosting แบบ "Web Service" เช่น Render
+// ที่ต้องการให้แอปเปิดฟังพอร์ตไว้ ไม่งั้นจะถูกมองว่าแอป crash แล้วรีสตาร์ทวนลูป
+// ถ้า deploy แบบ Background Worker ส่วนนี้ไม่จำเป็น แต่มีไว้ก็ไม่มีผลเสีย
+// ---------------------------------------------------------------------------
+const PORT = process.env.PORT || 3000;
+let botReady = false;
+
+const server = http.createServer((req, res) => {
+  if (req.url === '/health' || req.url === '/') {
+    res.writeHead(botReady ? 200 : 503, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({
+      status: botReady ? 'ok' : 'starting',
+      bot: botReady ? client.user?.tag : null,
+      uptime: process.uptime(),
+    }));
+    return;
+  }
+  res.writeHead(404);
+  res.end();
+});
+
+server.listen(PORT, () => {
+  console.log(`[HTTP] Health-check server listening on port ${PORT}`);
+});
+
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -23,6 +50,10 @@ const client = new Client({
     GatewayIntentBits.MessageContent,
   ],
   partials: [Partials.GuildMember, Partials.User, Partials.Channel],
+});
+
+client.once('ready', () => {
+  botReady = true;
 });
 
 // ---------------------------------------------------------------------------
