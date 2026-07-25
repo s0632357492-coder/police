@@ -1,0 +1,21 @@
+{
+  "name": "voice-management-bot",
+  "version": "1.0.0",
+  "description": "Enterprise Discord Voice Management Bot (voice247, vote moderation, special channel permission, reason control, devtool dashboard)",
+  "main": "src/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/index.js",
+    "deploy": "node src/deploy-commands.js"
+  },
+  "dependencies": {
+    "@discordjs/opus": "^0.10.0",
+    "@discordjs/voice": "^0.18.0",
+    "better-sqlite3": "^11.3.0",
+    "discord.js": "^14.15.3",
+    "dotenv": "^16.4.5"
+  },
+  "engines": {
+    "node": ">=18.17.0"
+  }
+}
